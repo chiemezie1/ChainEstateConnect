@@ -1,0 +1,1 @@
+initialting the thirdweb: npx thirdweb create contract  
