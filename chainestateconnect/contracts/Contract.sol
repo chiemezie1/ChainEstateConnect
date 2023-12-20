@@ -6,7 +6,6 @@ contract RealEstateProperty {
         contractOwner = msg.sender;
     }
 
-
     // VARIABLES
     address public contractOwner;
     uint256 public propertyIndex;
@@ -14,14 +13,12 @@ contract RealEstateProperty {
     uint256 public contractBalance = 0;
     uint256 public reviewsCount;
 
-
     // MAPPINGS
     mapping(address => uint256) public usersPendingWithdrawals;
     mapping(uint256 => Property) private properties;
     mapping(uint256 => Review[]) private reviews;
     mapping(uint256 => Product) private products;
     mapping(address => uint256[]) private userReviews;
-
 
     modifier onlyOwner() {
         require(
@@ -31,7 +28,6 @@ contract RealEstateProperty {
         _;
     }
 
-    
     // STRUCTS
     struct Property {
         uint256 productId;
@@ -49,7 +45,6 @@ contract RealEstateProperty {
         bool onSale;
     }
 
-    
     struct Review {
         address reviewer;
         string comment;
@@ -66,7 +61,6 @@ contract RealEstateProperty {
         uint256 totalLikes;
         uint256 totalDislikes;
     }
-
 
     // EVENTS
     event PropertyCreated(
@@ -116,10 +110,7 @@ contract RealEstateProperty {
         string imageUrl
     );
 
-    event Withdrawal(
-        address indexed user, 
-        uint256 amount
-    );
+    event Withdrawal(address indexed user, uint256 amount);
 
     event ReviewCreated(
         uint256 indexed productId,
@@ -132,19 +123,16 @@ contract RealEstateProperty {
     event ReviewLiked(
         uint256 indexed productId,
         uint256 indexed revieverIndex,
-        address indexed liker,
-        uint256 likes
+        address indexed liker
     );
 
     event ReviewDisliked(
         uint256 indexed productId,
         uint256 indexed revieverIndex,
-        address indexed disliker,
-        uint256 dislikes
+        address indexed disliker
     );
 
     // FUNCTIONS
-
 
     // Helper functions
     function transferOwnership(address newOwner) external onlyOwner {
@@ -156,8 +144,6 @@ contract RealEstateProperty {
         require(commission > 0, "Invalid new owner address");
         commissionRate = commission;
     }
-
-    
 
     // CONTRACT FUNCTIONS
     function creacteProperty(
@@ -283,7 +269,6 @@ contract RealEstateProperty {
         );
     }
 
-
     // WITHDRAWAL FUNCTIONS
     function withdrawSellerFunds() external {
         uint256 amount = usersPendingWithdrawals[msg.sender];
@@ -322,7 +307,6 @@ contract RealEstateProperty {
 
         recipient.transfer(amount);
     }
-
 
     // GETTERS
     function getPropertiesOnSale() external view returns (Property[] memory) {
@@ -479,6 +463,19 @@ contract RealEstateProperty {
         }
         return reviewArray;
     }
+
+     function likeReview(uint256 productId, uint256 reviewIndex) external {
+        Review storage review = reviews[productId][reviewIndex];
+        review.likes++;
+        emit ReviewLiked(productId, reviewIndex, msg.sender);
+    }
+
+    function dislikeReview(uint256 productId, uint256 reviewIndex) external {
+        Review storage review = reviews[productId][reviewIndex];
+        review.dislikes++;
+        emit ReviewDisliked(productId, reviewIndex, msg.sender);
+    }
+
 
     function getHighestRatedProduct() external view returns (uint256) {
         uint256 highestRatedProductId = 0;
