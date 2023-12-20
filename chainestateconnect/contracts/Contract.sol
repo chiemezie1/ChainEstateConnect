@@ -8,9 +8,9 @@ contract RealEstateProperty {
 
     address public contractOwner;
     uint256 public propertyIndex;
-    uint256 public reviewsCount;
     uint256 public commissionRate = 5; // 5% commission rate
-    mapping(address => uint256) public pendingWithdrawals;
+    uint256 public contractBalance = 0;
+    mapping(address => uint256) public usersPendingWithdrawals;
     mapping(uint256 => Property) private properties;
 
     modifier onlyOwner() {
@@ -113,7 +113,7 @@ contract RealEstateProperty {
     mapping(uint256 => Product) private products;
     mapping(address => uint256[]) private userReviews;
 
-    
+    uint256 public reviewsCount;
 
     event ReviewCreated(
         uint256 indexed productId,
@@ -127,12 +127,14 @@ contract RealEstateProperty {
         uint256 indexed productId,
         uint256 indexed revieverIndex,
         address indexed liker,
+        uint256 likes
     );
 
     event ReviewDisliked(
         uint256 indexed productId,
         uint256 indexed revieverIndex,
         address indexed disliker,
+        uint256 dislikes
     );
 
     // FUNCTIONS
@@ -141,7 +143,6 @@ contract RealEstateProperty {
 
     function creacteProperty(
         string memory _productTitle,
-        address owner,
         uint256 price,
         string memory _category,
         string memory _location,
@@ -149,6 +150,7 @@ contract RealEstateProperty {
         string memory _imageUrl
     ) external returns (uint256) {
         require(price > 0, "Price must be greater than 0");
+        address owner = msg.sender;
         uint256 productId = propertyIndex++;
 
         Property storage property = properties[productId];
@@ -234,8 +236,8 @@ contract RealEstateProperty {
         uint256 commissionAmount = (property.price * commissionRate) / 100;
         uint256 sellerAmount = property.price - commissionAmount;
 
-        pendingWithdrawals[msg.sender] += sellerAmount;
-        pendingWithdrawals[address(this)] += commissionAmount;
+        usersPendingWithdrawals[msg.sender] += sellerAmount;
+        contractBalance += commissionAmount;
 
         property.onSale = false;
         property.owner = msg.sender;
@@ -252,34 +254,25 @@ contract RealEstateProperty {
         );
     }
 
-    function withdraw() external {
-        uint256 amount = pendingWithdrawals[msg.sender];
-        require(amount > 0, "Nothing to withdraw");
-
-        pendingWithdrawals[msg.sender] = 0;
-        payable(msg.sender).transfer(amount);
-
-        emit Withdrawal(msg.sender, amount);
-    }
-
     function withdrawSellerFunds() external {
-        uint256 amount = pendingWithdrawals[msg.sender];
+        uint256 amount = usersPendingWithdrawals[msg.sender];
         require(amount > 0, "Nothing to withdraw");
 
-        pendingWithdrawals[msg.sender] = 0;
+        usersPendingWithdrawals[msg.sender] = 0;
         payable(msg.sender).transfer(amount);
 
         emit Withdrawal(msg.sender, amount);
     }
 
     function withdrawContractOwnerFunds() external onlyOwner {
-        uint256 amount = pendingWithdrawals[address(this)];
-        require(amount > 0, "Nothing to withdraw");
+        require(contractBalance > 0, "Nothing to withdraw");
 
-        pendingWithdrawals[address(this)] = 0;
-        payable(contractOwner).transfer(amount);
+        uint256 amountToWithdraw = contractBalance;
+        contractBalance = 0;
 
-        emit Withdrawal(contractOwner, amount);
+        payable(contractOwner).transfer(amountToWithdraw);
+
+        emit Withdrawal(contractOwner, amountToWithdraw);
     }
 
     function getPropertiesOnSale() external view returns (Property[] memory) {
@@ -436,18 +429,21 @@ contract RealEstateProperty {
         return reviewArray;
     }
 
-    function likeReview(uint256 productId, uint256 reviewIndex) external {
-        Review storage review = reviews[productId][reviewIndex];
-        review.likes++;
-        emit ReviewLiked(productId, reviewIndex, msg.sender);
+    function getHighestRatedProduct() external view returns (uint256) {
+        uint256 highestRatedProductId = 0;
+        uint256 highestRating = 0;
+
+        for (uint256 i = 0; i <= reviewsCount; i++) {
+            uint256 productId = i + 1;
+            if (products[productId].totalReviews > 0) {
+                uint256 rating = products[productId].totalRating /
+                    products[productId].totalReviews;
+                if (rating > highestRating) {
+                    highestRating = rating;
+                    highestRatedProductId = productId;
+                }
+            }
+        }
+        return highestRatedProductId;
     }
-
-    function dislikeReview(uint256 productId, uint256 reviewIndex) external {
-        Review storage review = reviews[productId][reviewIndex];
-        review.dislikes++;
-        emit ReviewDisliked(productId, reviewIndex, msg.sender);
-    }
-
-    
-
 }
