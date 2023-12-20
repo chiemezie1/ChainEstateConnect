@@ -6,12 +6,22 @@ contract RealEstateProperty {
         contractOwner = msg.sender;
     }
 
+
+    // VARIABLES
     address public contractOwner;
     uint256 public propertyIndex;
     uint256 public commissionRate = 5; // commission rate
     uint256 public contractBalance = 0;
+    uint256 public reviewsCount;
+
+
+    // MAPPINGS
     mapping(address => uint256) public usersPendingWithdrawals;
     mapping(uint256 => Property) private properties;
+    mapping(uint256 => Review[]) private reviews;
+    mapping(uint256 => Product) private products;
+    mapping(address => uint256[]) private userReviews;
+
 
     modifier onlyOwner() {
         require(
@@ -21,16 +31,8 @@ contract RealEstateProperty {
         _;
     }
 
-    function transferOwnership(address newOwner) external onlyOwner {
-        require(newOwner != address(0), "Invalid new owner address");
-        contractOwner = newOwner;
-    }
-
-    function updateCommissionRate(uint256 commission) external onlyOwner {
-        require(commission > 0, "Invalid new owner address");
-        commissionRate = commission;
-    }
-
+    
+    // STRUCTS
     struct Property {
         uint256 productId;
         string productTitle;
@@ -46,6 +48,25 @@ contract RealEstateProperty {
         uint256[] rating;
         bool onSale;
     }
+
+    
+    struct Review {
+        address reviewer;
+        string comment;
+        uint256 rating;
+        uint256 timestamp;
+        uint256 likes;
+        uint256 dislikes;
+    }
+
+    struct Product {
+        uint256 productId;
+        uint256 totalRating;
+        uint256 totalReviews;
+        uint256 totalLikes;
+        uint256 totalDislikes;
+    }
+
 
     // EVENTS
     event PropertyCreated(
@@ -95,30 +116,10 @@ contract RealEstateProperty {
         string imageUrl
     );
 
-    // Review
-    struct Review {
-        address reviewer;
-        string comment;
-        uint256 rating;
-        uint256 timestamp;
-        uint256 likes;
-        uint256 dislikes;
-    }
-
-    struct Product {
-        uint256 productId;
-        uint256 totalRating;
-        uint256 totalReviews;
-        uint256 totalLikes;
-        uint256 totalDislikes;
-    }
-
-    //MAPPINGS
-    mapping(uint256 => Review[]) private reviews;
-    mapping(uint256 => Product) private products;
-    mapping(address => uint256[]) private userReviews;
-
-    uint256 public reviewsCount;
+    event Withdrawal(
+        address indexed user, 
+        uint256 amount
+    );
 
     event ReviewCreated(
         uint256 indexed productId,
@@ -144,8 +145,21 @@ contract RealEstateProperty {
 
     // FUNCTIONS
 
-    event Withdrawal(address indexed user, uint256 amount);
 
+    // Helper functions
+    function transferOwnership(address newOwner) external onlyOwner {
+        require(newOwner != address(0), "Invalid new owner address");
+        contractOwner = newOwner;
+    }
+
+    function updateCommissionRate(uint256 commission) external onlyOwner {
+        require(commission > 0, "Invalid new owner address");
+        commissionRate = commission;
+    }
+
+    
+
+    // CONTRACT FUNCTIONS
     function creacteProperty(
         string memory _productTitle,
         uint256 price,
@@ -183,16 +197,22 @@ contract RealEstateProperty {
 
     function listProperty(uint256 productId) external {
         Property storage property = properties[productId];
-        require(property.owner == msg.sender, 'You are not the owner of this property');
-        require(property.onSale == false, 'property already on sale');
+        require(
+            property.owner == msg.sender,
+            "You are not the owner of this property"
+        );
+        require(property.onSale == false, "property already on sale");
         property.onSale = true;
         emit PropertyListed(productId, property.productTitle, property.owner);
     }
 
     function unlistProperty(uint256 productId) external {
         Property storage property = properties[productId];
-        require(property.owner == msg.sender, 'You are not the owner of this property');
-        require(property.onSale == true, 'property not on sale');
+        require(
+            property.owner == msg.sender,
+            "You are not the owner of this property"
+        );
+        require(property.onSale == true, "property not on sale");
         property.onSale = false;
         emit PropertyUnlisted(productId, property.productTitle, property.owner);
     }
@@ -263,6 +283,8 @@ contract RealEstateProperty {
         );
     }
 
+
+    // WITHDRAWAL FUNCTIONS
     function withdrawSellerFunds() external {
         uint256 amount = usersPendingWithdrawals[msg.sender];
         require(amount > 0, "Nothing to withdraw");
@@ -284,17 +306,25 @@ contract RealEstateProperty {
         emit Withdrawal(contractOwner, amountToWithdraw);
     }
 
-     function getContractBalance() external view returns (uint256) {
+    function getContractBalance() external view returns (uint256) {
         return address(this).balance;
     }
 
-    function sendExcessFunds(address payable recipient, uint256 amount) external onlyOwner {
-        require(address(this).balance >= amount, "Insufficient contract balance");
+    function sendExcessFunds(address payable recipient, uint256 amount)
+        external
+        onlyOwner
+    {
+        require(
+            address(this).balance >= amount,
+            "Insufficient contract balance"
+        );
         require(recipient != address(0), "Invalid recipient address");
-        
+
         recipient.transfer(amount);
     }
 
+
+    // GETTERS
     function getPropertiesOnSale() external view returns (Property[] memory) {
         uint256 length = propertyIndex;
         uint256 currentIdex = 0;
@@ -378,7 +408,7 @@ contract RealEstateProperty {
         return propertyArray;
     }
 
-    //REVIEW FUNCTIONS
+    //REVIW FUNCTIONS
 
     function createReview(
         uint256 productId,
@@ -409,6 +439,8 @@ contract RealEstateProperty {
         reviewsCount++;
     }
 
+    // GET REVIEW FUNCTIONS
+
     function getProductReviews(uint256 productId)
         external
         view
@@ -428,7 +460,7 @@ contract RealEstateProperty {
         // Initialize an array to store the user's reviews
         Review[] memory reviewArray = new Review[](length);
 
-        // Loop through each review associated with the user 
+        // Loop through each review associated with the user
         // Fetch the current product ID associated with the review
         for (uint256 i = 0; i < length; i++) {
             uint256 productId = userReviews[user][i];
