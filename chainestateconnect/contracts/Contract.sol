@@ -183,7 +183,7 @@ contract RealEstateProperty {
 
     function listProperty(uint256 productId) external {
         Property storage property = properties[productId];
-        require(Property.owner == msg.sender, 'You are not the owner of this property');
+        require(property.owner == msg.sender, 'You are not the owner of this property');
         require(property.onSale == false, 'property already on sale');
         property.onSale = true;
         emit PropertyListed(productId, property.productTitle, property.owner);
@@ -294,9 +294,6 @@ contract RealEstateProperty {
         
         recipient.transfer(amount);
     }
-
-
-
 
     function getPropertiesOnSale() external view returns (Property[] memory) {
         uint256 length = propertyIndex;
