@@ -8,7 +8,7 @@ contract RealEstateProperty {
 
     address public contractOwner;
     uint256 public propertyIndex;
-    uint256 public commissionRate = 5; // 5% commission rate
+    uint256 public commissionRate = 5; // commission rate
     uint256 public contractBalance = 0;
     mapping(address => uint256) public usersPendingWithdrawals;
     mapping(uint256 => Property) private properties;
@@ -24,6 +24,11 @@ contract RealEstateProperty {
     function transferOwnership(address newOwner) external onlyOwner {
         require(newOwner != address(0), "Invalid new owner address");
         contractOwner = newOwner;
+    }
+
+    function updateCommissionRate(uint256 commission) external onlyOwner {
+        require(commission > 0, "Invalid new owner address");
+        commissionRate = commission;
     }
 
     struct Property {
@@ -178,12 +183,16 @@ contract RealEstateProperty {
 
     function listProperty(uint256 productId) external {
         Property storage property = properties[productId];
+        require(Property.owner == msg.sender, 'You are not the owner of this property');
+        require(property.onSale == false, 'property already on sale');
         property.onSale = true;
         emit PropertyListed(productId, property.productTitle, property.owner);
     }
 
     function unlistProperty(uint256 productId) external {
         Property storage property = properties[productId];
+        require(property.owner == msg.sender, 'You are not the owner of this property');
+        require(property.onSale == true, 'property not on sale');
         property.onSale = false;
         emit PropertyUnlisted(productId, property.productTitle, property.owner);
     }
@@ -236,7 +245,7 @@ contract RealEstateProperty {
         uint256 commissionAmount = (property.price * commissionRate) / 100;
         uint256 sellerAmount = property.price - commissionAmount;
 
-        usersPendingWithdrawals[msg.sender] += sellerAmount;
+        usersPendingWithdrawals[property.owner] += sellerAmount;
         contractBalance += commissionAmount;
 
         property.onSale = false;
@@ -274,6 +283,20 @@ contract RealEstateProperty {
 
         emit Withdrawal(contractOwner, amountToWithdraw);
     }
+
+     function getContractBalance() external view returns (uint256) {
+        return address(this).balance;
+    }
+
+    function sendExcessFunds(address payable recipient, uint256 amount) external onlyOwner {
+        require(address(this).balance >= amount, "Insufficient contract balance");
+        require(recipient != address(0), "Invalid recipient address");
+        
+        recipient.transfer(amount);
+    }
+
+
+
 
     function getPropertiesOnSale() external view returns (Property[] memory) {
         uint256 length = propertyIndex;
@@ -382,9 +405,8 @@ contract RealEstateProperty {
         userReviews[user].push(productId);
 
         // Update product review details
-        products[productId].totalReviews += 1; // Increment total reviews count
-        products[productId].totalRating += rating; // Add to total rating
-
+        products[productId].totalReviews += 1;
+        products[productId].totalRating += rating;
         emit ReviewCreated(productId, user, comment, rating, timestamp);
 
         reviewsCount++;
@@ -409,19 +431,19 @@ contract RealEstateProperty {
         // Initialize an array to store the user's reviews
         Review[] memory reviewArray = new Review[](length);
 
-        // Loop through each review associated with the user
+        // Loop through each review associated with the user 
+        // Fetch the current product ID associated with the review
         for (uint256 i = 0; i < length; i++) {
-            // Fetch the current product ID associated with the review
             uint256 productId = userReviews[user][i];
 
             // Fetch all reviews associated with this product ID
             Review[] memory userReview = reviews[productId];
 
             // Loop through each review in the product's review list
+            // Check if the review was authored by the user
+            // Assign the user's review to the review array
             for (uint256 j = 0; j < userReview.length; j++) {
-                // Check if the review was authored by the user
                 if (userReview[j].reviewer == user) {
-                    // Assign the user's review to the review array
                     reviewArray[i] = userReview[j];
                 }
             }
