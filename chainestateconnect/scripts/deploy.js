@@ -17,7 +17,7 @@ async function main() {
   };
 
   //This writes the ABI and address to the eRealEstateProperty.json
-  fs.writeFileSync('./frontend/src/Contract/RealEstateProperty.json', JSON.stringify(data));
+  fs.writeFileSync('../client/src/Contract/RealEstateProperty.json', JSON.stringify(data));
 }
 
 main()
