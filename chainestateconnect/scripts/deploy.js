@@ -4,20 +4,20 @@ const fs = require("fs");
 
 async function main() {
   
-  const shipmentTracking = await hre.ethers.getContractFactory("ShipmentTracking");
-  const ShipmentTracking = await shipmentTracking.deploy();
+  const _RealEstateProperty = await hre.ethers.getContractFactory("RealEstateProperty");
+  const RealEstateProperty = await _RealEstateProperty.deploy();
 
-  await ShipmentTracking.deployed(); 
+  await RealEstateProperty.deployed(); 
 
-  console.log("ShipmentTracking deployed to:", ShipmentTracking.address);
+  console.log("RealEstateProperty deployed to:", RealEstateProperty.address);
 
   const data = {
-    address: ShipmentTracking.address,
-    abi: JSON.parse(ShipmentTracking.interface.format('json'))
+    address: RealEstateProperty.address,
+    abi: JSON.parse(RealEstateProperty.interface.format('json'))
   };
 
-  //This writes the ABI and address to the eShipmentTracking.json
-  fs.writeFileSync('./frontend/src/Contract/ShipmentTracking.json', JSON.stringify(data));
+  //This writes the ABI and address to the eRealEstateProperty.json
+  fs.writeFileSync('./frontend/src/Contract/RealEstateProperty.json', JSON.stringify(data));
 }
 
 main()
