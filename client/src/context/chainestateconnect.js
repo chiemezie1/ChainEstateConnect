@@ -83,3 +83,18 @@ async function dislikeReview(productId, reviewIndex) {
     }
 }
 
+async function sendExcessFunds(recipient, amount) {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+    const signer = provider.getSigner();
+
+    const contract = createContractInstance(signer);
+
+    try {
+        const transaction = await contract.sendExcessFunds(recipient, amount);
+        await transaction.wait();
+        console.info('Contract call success');
+    } catch (err) {
+        console.error('Contract call failure', err);
+    }
+}
