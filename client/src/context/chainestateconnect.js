@@ -9,6 +9,9 @@ const fetchContract = (SignerOrProvider) => {
     );
 };
 
+
+///// WRITER  FUNCTIONS//////////
+
 async function buyProperty(productId) {
     const provider = new ethers.providers.JsonRpcProvider('YOUR_RPC_URL'); // Replace with your RPC URL
     const signer = provider.getSigner();
@@ -177,6 +180,106 @@ async function updatePropertyDetails(productId, category, location, description,
         console.info('Contract call success');
     } catch (err) {
         console.error('Contract call failure', err);
+    }
+}
+
+async function withdrawContractOwnerFunds(arg1, arg2 /*, ...other args */) {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+    const signer = provider.getSigner();
+
+    const contract = createContractInstance(signer);
+
+    try {
+        const transaction = await contract.withdrawContractOwnerFunds(arg1, arg2 /*, ...other args */);
+        await transaction.wait();
+        console.info('Contract call success');
+    } catch (err) {
+        console.error('Contract call failure', err);
+    }
+}
+
+async function withdrawSellerFunds(arg1, arg2 /*, ...other args */) {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+    const signer = provider.getSigner();
+
+    const contract = createContractInstance(signer);
+
+    try {
+        const transaction = await contract.withdrawSellerFunds(arg1, arg2 /*, ...other args */);
+        await transaction.wait();
+        console.info('Contract call success');
+    } catch (err) {
+        console.error('Contract call failure', err);
+    }
+}
+
+
+
+/////// READ ONLY FUNCTIONS ///////
+
+async function getCommissionRate() {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+
+    const contract = createContractInstance(provider);
+
+    try {
+        const commissionRate = await contract.commissionRate();
+        console.log('Commission Rate:', commissionRate.toString());
+        return commissionRate.toString();
+    } catch (err) {
+        console.error('Failed to fetch commission rate:', err);
+        return null;
+    }
+}
+
+async function getContractBalance() {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+
+    const contract = createContractInstance(provider);
+
+    try {
+        const contractBalance = await contract.contractBalance();
+        console.log('Contract Balance:', contractBalance.toString());
+        return contractBalance.toString();
+    } catch (err) {
+        console.error('Failed to fetch contract balance:', err);
+        return null;
+    }
+}
+
+async function getAllProperties() {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+
+    const contract = createContractInstance(provider);
+
+    try {
+        const properties = await contract.getAllProperties();
+        console.log('All Properties:', properties);
+        return properties;
+    } catch (err) {
+        console.error('Failed to fetch all properties:', err);
+        return null;
+    }
+}
+
+async function getContractBalance() {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+
+    const contract = createContractInstance(provider);
+
+    try {
+        const contractBalance = await contract.getContractBalance();
+        console.log('Contract Balance:', contractBalance.toString());
+        return contractBalance.toString();
+    } catch (err) {
+        console.error('Failed to fetch contract balance:', err);
+        return null;
     }
 }
 
