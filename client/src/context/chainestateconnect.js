@@ -98,3 +98,51 @@ async function sendExcessFunds(recipient, amount) {
         console.error('Contract call failure', err);
     }
 }
+
+async function transferOwnership(newOwner) {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+    const signer = provider.getSigner();
+
+    const contract = createContractInstance(signer);
+
+    try {
+        const transaction = await contract.transferOwnership(newOwner);
+        await transaction.wait();
+        console.info('Contract call success');
+    } catch (err) {
+        console.error('Contract call failure', err);
+    }
+}
+
+async function unlistProperty(productId) {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+    const signer = provider.getSigner();
+
+    const contract = createContractInstance(signer);
+
+    try {
+        const transaction = await contract.unlistProperty(productId);
+        await transaction.wait();
+        console.info('Contract call success');
+    } catch (err) {
+        console.error('Contract call failure', err);
+    }
+}
+
+async function updateCommissionRate(commission) {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+    const signer = provider.getSigner();
+
+    const contract = createContractInstance(signer);
+
+    try {
+        const transaction = await contract.updateCommissionRate(commission);
+        await transaction.wait();
+        console.info('Contract call success');
+    } catch (err) {
+        console.error('Contract call failure', err);
+    }
+}
