@@ -331,3 +331,82 @@ async function getPropertiesOnSale() {
     }
 }
 
+async function getProperty(productId) {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+
+    const contract = createContractInstance(provider);
+
+    try {
+        const propertyDetails = await contract.getProperty(productId);
+        console.log('Property Details:', propertyDetails);
+        return propertyDetails;
+    } catch (err) {
+        console.error('Failed to fetch property details:', err);
+        return null;
+    }
+}
+
+async function getUserProperties(user) {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+
+    const contract = createContractInstance(provider);
+
+    try {
+        const userProperties = await contract.getUserProperties(user);
+        console.log('User Properties:', userProperties);
+        return userProperties;
+    } catch (err) {
+        console.error('Failed to fetch user properties:', err);
+        return null;
+    }
+}
+
+async function getUserReviews(user) {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+
+    const contract = createContractInstance(provider);
+
+    try {
+        const userReviews = await contract.getUserReviews(user);
+        console.log('User Reviews:', userReviews);
+        return userReviews;
+    } catch (err) {
+        console.error('Failed to fetch user reviews:', err);
+        return null;
+    }
+}
+
+async function getPropertyIndex() {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+
+    const contract = createContractInstance(provider);
+
+    try {
+        const index = await contract.propertyIndex();
+        console.log('Property Index:', index);
+        return index;
+    } catch (err) {
+        console.error('Failed to fetch property index:', err);
+        return null;
+    }
+}
+
+async function getUsersPendingWithdrawals() {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+
+    const contract = createContractInstance(provider);
+
+    try {
+        const pendingWithdrawals = await contract.usersPendingWithdrawals();
+        console.log('Users Pending Withdrawals:', pendingWithdrawals);
+        return pendingWithdrawals;
+    } catch (err) {
+        console.error('Failed to fetch users\' pending withdrawals:', err);
+        return null;
+    }
+}
