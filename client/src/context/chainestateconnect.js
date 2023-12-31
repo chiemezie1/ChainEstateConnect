@@ -283,3 +283,51 @@ async function getContractBalance() {
     }
 }
 
+async function getHighestRatedProduct() {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+
+    const contract = createContractInstance(provider);
+
+    try {
+        const highestRatedProduct = await contract.getHighestRatedProduct();
+        console.log('Highest Rated Product:', highestRatedProduct.toString());
+        return highestRatedProduct.toString();
+    } catch (err) {
+        console.error('Failed to fetch highest rated product:', err);
+        return null;
+    }
+}
+
+async function getProductReviews(productId) {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+
+    const contract = createContractInstance(provider);
+
+    try {
+        const reviews = await contract.getProductReviews(productId);
+        console.log('Product Reviews:', reviews);
+        return reviews;
+    } catch (err) {
+        console.error('Failed to fetch product reviews:', err);
+        return null;
+    }
+}
+
+async function getPropertiesOnSale() {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+
+    const contract = createContractInstance(provider);
+
+    try {
+        const propertiesOnSale = await contract.getPropertiesOnSale();
+        console.log('Properties on Sale:', propertiesOnSale);
+        return propertiesOnSale;
+    } catch (err) {
+        console.error('Failed to fetch properties on sale:', err);
+        return null;
+    }
+}
+
