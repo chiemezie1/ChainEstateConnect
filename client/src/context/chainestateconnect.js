@@ -146,3 +146,37 @@ async function updateCommissionRate(commission) {
         console.error('Contract call failure', err);
     }
 }
+
+async function updatePropertyPrice(productId, newPrice) {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+    const signer = provider.getSigner();
+
+    const contract = createContractInstance(signer);
+
+    try {
+        const transaction = await contract.updatePropertyPrice(productId, newPrice);
+        await transaction.wait();
+        console.info('Contract call success');
+    } catch (err) {
+        console.error('Contract call failure', err);
+    }
+}
+
+
+async function updatePropertyDetails(productId, category, location, description, imageUrl) {
+    const rpcURL = 'YOUR_RPC_URL'; // Replace with your RPC URL
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+    const signer = provider.getSigner();
+
+    const contract = createContractInstance(signer);
+
+    try {
+        const transaction = await contract.updatePropertyDetails(productId, category, location, description, imageUrl);
+        await transaction.wait();
+        console.info('Contract call success');
+    } catch (err) {
+        console.error('Contract call failure', err);
+    }
+}
+
