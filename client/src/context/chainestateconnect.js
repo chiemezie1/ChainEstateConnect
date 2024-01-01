@@ -1,5 +1,12 @@
 import { ethers } from "ethers";
+import { createContext, useContext, useState } from 'react';
 import RealEstateProperty from "../Contract/RealEstateProperty.json";
+
+
+
+const SidebarContext = RealEstatePropertyContext();
+
+export const RealEstatePropertyProvider = ({ children }) => {
 
 const fetchContract = (SignerOrProvider) => {
     return new ethers.Contract(
@@ -409,4 +416,31 @@ async function getUsersPendingWithdrawals() {
         console.error('Failed to fetch users\' pending withdrawals:', err);
         return null;
     }
+}
+
+
+const checkIfConnected = async () => {
+    try {
+        if (!window.ethereum) {
+            return "please install MetaMask";
+        }
+        const accounts = await window.ethereum.request({
+            method: "eth_accounts",
+        });
+        if (accounts.length) {
+            setCurrentUser(accounts[0]);
+        } else {
+            return "No account found";
+        }
+    } catch (error) {
+        console.log("Not connected" + error);
+    }
+};
+
+
+
+useEffect(() => {
+    checkIfConnected();
+}, []);
+
 }
