@@ -1,10 +1,12 @@
+"use client"
+
 import { ethers } from "ethers";
 import { createContext, useContext, useState } from 'react';
 import RealEstateProperty from "../Contract/RealEstateProperty.json";
 
 
 
-const SidebarContext = RealEstatePropertyContext();
+const RealEstatePropertyContext = React.createContext();
 
 export const RealEstatePropertyProvider = ({ children }) => {
 
@@ -444,7 +446,7 @@ export const RealEstatePropertyProvider = ({ children }) => {
     }, []);
 
     return (
-        <TrackingContext.Provider
+        <RealEstatePropertyContext.Provider
             value={{
                 getPropertiesOnSale,
                 getProductReviews,
@@ -463,7 +465,7 @@ export const RealEstatePropertyProvider = ({ children }) => {
             }}
         >
             {children}
-        </TrackingContext.Provider>
+        </RealEstatePropertyContext.Provider>
     );
 
 }
